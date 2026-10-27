@@ -1,42 +1,56 @@
-# Zen Setup Guide (Windows)
+# Zen setup (Windows)
 
-## Step 1 — Install Python packages
-Open terminal in this folder and run:
+## 1. Install packages
+
 ```
 pip install -r requirements.txt
 ```
 
-If pyaudio fails, run this first:
+If `pyaudio` fails:
+
 ```
 pip install pipwin
 pipwin install pyaudio
 ```
 
-## Step 2 — Add your API key
-Open config.py and replace:
-```
-"groq_api_key": "YOUR_GROQ_API_KEY_HERE"
-```
-With your actual Groq API key.
+## 2. Add your API key
 
-## Step 3 — Run Zen
+```
+copy config.example.py config.py
+```
+
+Open `config.py` and replace `YOUR_GROQ_API_KEY_HERE` with your Groq key. `config.py` is gitignored.
+
+## 3. Run
+
 ```
 python main.py
 ```
 
-## How to Use
-- Press ENTER to speak
-- Say anything — Zen will respond
-- Say "switch to professional" — changes personality
-- Say "switch to casual" — changes back
-- Say "switch to male voice" or "switch to female voice"
-- Say "bye Zen" or "exit" to quit
+## 4. Tests (optional)
 
-## Folder Structure
 ```
-zen/
-├── main.py          # Core app
-├── config.py        # Your settings & API key
-├── requirements.txt # Dependencies
-└── SETUP.md         # This file
+pip install pytest
+pytest tests
+```
+
+The tests cover the code-safety classifier only; they do not need a microphone or an API key.
+
+## Using Zen
+
+- Choose voice or chat mode at startup. In voice mode, press ENTER to speak.
+- "switch to professional" / "switch to casual" changes personality.
+- "switch to male voice" / "switch to female voice" changes the voice.
+- "bye Zen" or "exit" quits.
+
+## Files
+
+```
+main.py            app loop, speech in/out, command routing, confirmation
+executor.py        code generation, safety classification, isolated execution, code cache
+validator.py       AST-based safety analysis used by executor.py
+memory.py          saved facts and preferences (zen_memory.json)
+reminders.py       reminders (zen_reminders.json)
+config.example.py  template for config.py
+tests/             classifier tests
 ```

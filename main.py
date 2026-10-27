@@ -92,7 +92,7 @@ def speak(text):
             engine.say(text)
             engine.runAndWait()
             engine.stop()
-        except:
+        except Exception:
             pass
 
 # ── Listen ────────────────────────────────────────────────────────────────────
@@ -128,7 +128,7 @@ def get_confirmation(prompt):
     speak(prompt)
     if mode == "voice":
         response = listen()
-        return response and any(w in response.lower() for w in ["yes", "yeah", "sure", "okay", "do it", "confirm"])
+        return bool(response) and re.search(r"\b(yes|yeah|sure|okay|do it|confirm)\b", response.lower()) is not None
     else:
         answer = input("(yes/no): ").strip().lower()
         return answer in ["yes", "y", "yeah", "sure"]
@@ -158,7 +158,7 @@ def clean_message(raw, contact):
             max_tokens=150
         )
         return response.choices[0].message.content.strip()
-    except:
+    except Exception:
         return raw
 
 def send_whatsapp_message(contact, raw_message):
@@ -318,7 +318,7 @@ Corrected:"""
         if corrected and corrected != user_input:
             print(f"Corrected: '{user_input}' → '{corrected}'")
             user_input = corrected
-    except:
+    except Exception:
         pass
 
     cache_key = user_input.lower().strip()
@@ -367,7 +367,7 @@ Corrected:"""
                 messages=[{"role": "user", "content": f"One sentence: what exactly will this Python code do? Be specific about filenames.\nCode:\n{code}"}],
                 max_tokens=50
             ).choices[0].message.content.strip()
-        except:
+        except Exception:
             summary = "run a system operation"
         if not get_confirmation(f"Zen will: {summary}. Say yes to confirm."):
             speak("Cancelled."); return

@@ -10,7 +10,6 @@ screen-brightness-control
 pycaw 
 comtypes
 edge-tts 
-asyncio
 pygame
 mss 
 plyer

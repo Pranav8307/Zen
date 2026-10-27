@@ -14,7 +14,7 @@ def load_reminders():
         try:
             with open(REMINDERS_FILE, "r") as f:
                 return json.load(f)
-        except:
+        except Exception:
             return []
     return []
 
@@ -123,7 +123,7 @@ def show_popup(title, message):
             app_name="Zen",
             timeout=10
         )
-    except:
+    except Exception:
         # Fallback to Windows toast via PowerShell
         try:
             import subprocess
@@ -137,7 +137,7 @@ $toast = [Windows.UI.Notifications.ToastNotification]::new($template)
 [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier("Zen").Show($toast)
 '''
             subprocess.run(["powershell", "-Command", ps_script], capture_output=True)
-        except:
+        except Exception:
             pass
 
 # ── Reminder checker — runs in background thread ──────────────────────────────
@@ -154,7 +154,7 @@ def start_reminder_checker(speak_func):
                         continue
                     try:
                         reminder_dt = datetime.strptime(f"{r['date']} {r['time']}", "%Y-%m-%d %H:%M")
-                    except:
+                    except Exception:
                         continue
 
                     # Trigger if within 1 minute window

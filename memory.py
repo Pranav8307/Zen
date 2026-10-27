@@ -37,7 +37,7 @@ def load_memory():
                     if key not in data:
                         data[key] = DEFAULT_MEMORY[key]
                 return data
-        except:
+        except Exception:
             return DEFAULT_MEMORY.copy()
     return DEFAULT_MEMORY.copy()
 

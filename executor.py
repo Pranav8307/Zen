@@ -6,6 +6,8 @@ import traceback
 import multiprocessing
 from datetime import datetime
 
+from validator import analyze as ast_analyze
+
 BLACKLIST = [
     "diskpart",
     "del /f /s", "rd /s /q", "eval(", "__import__(",
@@ -34,7 +36,8 @@ ALLOWED_IMPORTS = [
     "import requests", "import zipfile",
 ]
 
-def get_trust_level(code):
+def _pattern_trust_level(code):
+    """First layer: text/pattern checks (fast, but bypassable on their own)."""
     code_lower = code.lower()
     for pattern in BLACKLIST:
         if pattern.lower() in code_lower:
@@ -51,6 +54,12 @@ def get_trust_level(code):
         if re.search(pattern, code):
             return 3, "This will modify or move existing files."
     return 1, "Safe"
+
+def get_trust_level(code):
+    """Two layers: text patterns plus AST analysis. The higher risk level wins."""
+    pattern_result = _pattern_trust_level(code)
+    ast_result = ast_analyze(code)
+    return ast_result if ast_result[0] > pattern_result[0] else pattern_result
 
 def _run_code(code, result_queue):
     try:
@@ -82,7 +91,7 @@ Category:"""}],
         if result not in ["system", "internal", "conversation"]:
             return "system"
         return result
-    except:
+    except Exception:
         return "system"
 
 def needs_location_clarification(client, model, user_input):
@@ -110,7 +119,7 @@ Answer yes or no:"""}],
         )
         result = response.choices[0].message.content.strip().lower()
         return "yes" in result
-    except:
+    except Exception:
         return False
 
 def execute_code(code, timeout=15):
@@ -151,7 +160,7 @@ Python code:"""}],
         )
         code = response.choices[0].message.content.strip()
         return code.replace("```python", "").replace("```", "").strip()
-    except:
+    except Exception:
         return None
 
 CACHE_FILE = "zen_code_cache.json"
@@ -161,7 +170,7 @@ def load_cache():
         try:
             with open(CACHE_FILE, "r") as f:
                 return json.load(f)
-        except:
+        except Exception:
             return {}
     return {}
 
@@ -188,7 +197,7 @@ def get_system_schema(memory=None):
     try:
         import pyautogui
         screen = pyautogui.size()
-    except:
+    except Exception:
         screen = "unknown"
 
     return f"""OS: {platform.system()} {platform.release()}
